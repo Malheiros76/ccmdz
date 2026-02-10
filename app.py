@@ -656,7 +656,7 @@ def pagina_usuarios():
 
 # --- Menu Lateral ---
 def menu():
-    st.sidebar.image("logo.jpeg", use_container_width=True)
+    st.sidebar.image("LOGO.PNG", use_container_width=True)
     st.sidebar.markdown("### 📚 Menu de Navegação")
     opcoes = ["Cadastro", "Ocorrências", "Exportar", "Lista"]
     if st.session_state.get("nivel") == "admin":
