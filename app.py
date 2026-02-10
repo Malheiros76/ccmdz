@@ -12,7 +12,7 @@ import pytz
 
 import base64
 
-st.set_page_config(page_title="Sistema Escolar - CCMLC by Leandro Malheiros V2.0.3 ", layout="centered")
+st.set_page_config(page_title="Sistema Escolar - CCMDZ by Leandro Malheiros V2.0.3 ", layout="centered")
 
 # --- Estilização Visual ---
 st.markdown("""
@@ -64,7 +64,7 @@ def agora_local():
 # --- Conexão com MongoDB ---
 @st.cache_resource
 def conectar():
-    uri = "mongodb+srv://bibliotecaluizcarlos:KAUOQ9ViyKrXDDAl@cluster0.npyoxsi.mongodb.net/?retryWrites=true&w=majority"
+    uri = "mongodb+srv://bibliotecaluizcarlos_db_user:oXl7eMBLmzjaSn8G@cluster0.1kgiqh2.mongodb.net/"
     cliente = MongoClient(uri)
     return cliente["escola"]
 
