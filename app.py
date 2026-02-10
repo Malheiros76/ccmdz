@@ -115,8 +115,8 @@ def formatar_mensagem_whatsapp(ocorrencias, nome):
 
     msg += """
 
-👨‍🏫 Escola [CCM Profº Luiz Carlos de Paula e Souza]
-📞 Contato: [41 3348-4165]
+👨‍🏫 Escola [CCM Profº Domingos Zanlorenzi]
+📞 Contato: [41 3373-1910]
 
 Este relatório foi gerado automaticamente pelo Sistema de Ocorrências."""
     return msg
@@ -605,7 +605,7 @@ from pymongo import MongoClient
 import hashlib
 
 def conectar():
-    uri = "mongodb+srv://bibliotecaluizcarlos:KAUOQ9ViyKrXDDAl@cluster0.npyoxsi.mongodb.net/?retryWrites=true&w=majority"
+    uri = "mongodb+srv://bibliotecaluizcarlos_db_user:oXl7eMBLmzjaSn8G@cluster0.1kgiqh2.mongodb.net/?retryWrites=true&w=majority"
     cliente = MongoClient(uri)
     return cliente["escola"]
 
