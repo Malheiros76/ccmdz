@@ -1,0 +1,16 @@
+streamlit>=1.32
+pymongo>=4.6
+pandas>=2.1
+dnspython
+altair==4.2.2
+pandas
+numpy
+pymongo
+dnspython
+reportlab
+fpdf2
+python-docx
+streamlit
+fpdf
+pillow
+pytz
