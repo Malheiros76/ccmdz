@@ -126,27 +126,61 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
     import os
     import base64
     from io import BytesIO
+    from datetime import datetime
+
     from docx import Document
-    from docx.shared import Inches
+    from docx.shared import Inches, Pt
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
 
     doc = Document()
-    doc.add_heading("RELATÓRIO DE OCORRÊNCIAS", level=1)
 
+    # ===== CABEÇALHO INSTITUCIONAL =====
+    if os.path.exists("BRASAO1.png") and os.path.getsize("BRASAO1.png") > 0:
+        doc.add_picture("BRASAO1.png", width=Inches(1.2))
+
+    titulo = doc.add_paragraph()
+    titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = titulo.add_run("COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZI\n")
+    run.bold = True
+    run.font.size = Pt(14)
+
+    subtitulo = doc.add_paragraph("Relatório Oficial de Ocorrências")
+    subtitulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    data_doc = doc.add_paragraph(
+        f"Gerado em: {datetime.now().strftime('%d/%m/%Y às %H:%M')}"
+    )
+    data_doc.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    doc.add_paragraph("\n")
+
+    # ===== OCORRÊNCIAS =====
     for ocorr in ocorrencias:
-        doc.add_paragraph(f"Aluno: {ocorr.get('nome','')}")
-        doc.add_paragraph(f"CGM: {ocorr.get('cgm','')}")
-        doc.add_paragraph(f"Data: {ocorr.get('data','')}")
-        doc.add_paragraph(f"Descrição: {ocorr.get('descricao','')}")
+
+        doc.add_paragraph().add_run("Aluno: ").bold = True
+        doc.paragraphs[-1].add_run(f"{ocorr.get('nome','')}")
+
+        doc.add_paragraph().add_run("CGM: ").bold = True
+        doc.paragraphs[-1].add_run(f"{ocorr.get('cgm','')}")
+
+        doc.add_paragraph().add_run("Data: ").bold = True
+        doc.paragraphs[-1].add_run(f"{ocorr.get('data','')}")
+
+        doc.add_paragraph().add_run("Descrição: ").bold = True
+        doc.paragraphs[-1].add_run(f"{ocorr.get('descricao','')}")
+
         doc.add_paragraph("")
 
-        # ====== INSERIR ATA ======
+        # ===== ATA ANEXADA =====
         ata_base64 = ocorr.get("ata")
 
         if ata_base64:
             try:
                 arquivo_bytes = base64.b64decode(ata_base64)
 
-                # Detectar se é PDF
+                # Se for PDF
                 if arquivo_bytes[:4] == b"%PDF":
                     try:
                         from pdf2image import convert_from_bytes
@@ -160,16 +194,18 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
                             img_stream.seek(0)
                             doc.add_picture(img_stream, width=Inches(5))
 
-                    except:
-                        doc.add_paragraph("ATA em PDF (não foi possível converter).")
+                    except Exception:
+                        doc.add_paragraph(
+                            "ATA em PDF (não foi possível converter)."
+                        )
 
                 else:
-                    # Se for imagem (JPG/PNG)
+                    # Se for imagem
                     img_stream = BytesIO(arquivo_bytes)
                     doc.add_paragraph("ATA Anexada:")
                     doc.add_picture(img_stream, width=Inches(5))
 
-            except:
+            except Exception:
                 doc.add_paragraph("Erro ao carregar ATA.")
 
         doc.add_page_break()
@@ -183,31 +219,71 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     import os
     import base64
     from io import BytesIO
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-    from reportlab.lib.styles import ParagraphStyle
+    from datetime import datetime
+
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Paragraph,
+        Spacer,
+        Image,
+        PageBreak
+    )
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib import colors
     from reportlab.lib.units import inch
-    from reportlab.platypus import PageBreak
-    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.pagesizes import A4
 
     caminho = os.path.join(os.getcwd(), nome_arquivo)
-    doc = SimpleDocTemplate(caminho)
+    doc = SimpleDocTemplate(caminho, pagesize=A4)
     elementos = []
 
     styles = getSampleStyleSheet()
-    estilo = styles["Normal"]
 
-    elementos.append(Paragraph("<b>RELATÓRIO DE OCORRÊNCIAS</b>", styles["Title"]))
+    # ===== ESTILOS PERSONALIZADOS =====
+    titulo_style = styles["Title"]
+
+    cabecalho_style = ParagraphStyle(
+        name="CabecalhoCentralizado",
+        parent=styles["Normal"],
+        alignment=1,  # centralizado
+        fontSize=12,
+        spaceAfter=6
+    )
+
+    normal_style = styles["Normal"]
+
+    # ===== CABEÇALHO INSTITUCIONAL =====
+    if os.path.exists("BRASAO1.png") and os.path.getsize("BRASAO1.png") > 0:
+        elementos.append(Image("BRASAO1.png", width=1.2*inch, height=1.2*inch))
+        elementos.append(Spacer(1, 10))
+
+    elementos.append(Paragraph(
+        "<b>COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZI</b>",
+        cabecalho_style
+    ))
+
+    elementos.append(Paragraph(
+        "Relatório Oficial de Ocorrências",
+        cabecalho_style
+    ))
+
+    elementos.append(Paragraph(
+        f"Gerado em: {datetime.now().strftime('%d/%m/%Y às %H:%M')}",
+        cabecalho_style
+    ))
+
     elementos.append(Spacer(1, 20))
 
+    # ===== OCORRÊNCIAS =====
     for ocorr in ocorrencias:
-        elementos.append(Paragraph(f"Aluno: {ocorr.get('nome','')}", estilo))
-        elementos.append(Paragraph(f"CGM: {ocorr.get('cgm','')}", estilo))
-        elementos.append(Paragraph(f"Data: {ocorr.get('data','')}", estilo))
-        elementos.append(Paragraph(f"Descrição: {ocorr.get('descricao','')}", estilo))
+
+        elementos.append(Paragraph(f"<b>Aluno:</b> {ocorr.get('nome','')}", normal_style))
+        elementos.append(Paragraph(f"<b>CGM:</b> {ocorr.get('cgm','')}", normal_style))
+        elementos.append(Paragraph(f"<b>Data:</b> {ocorr.get('data','')}", normal_style))
+        elementos.append(Paragraph(f"<b>Descrição:</b> {ocorr.get('descricao','')}", normal_style))
         elementos.append(Spacer(1, 15))
 
-        # ====== INSERIR ATA ======
+        # ===== ATA ANEXADA =====
         ata_base64 = ocorr.get("ata")
 
         if ata_base64:
@@ -220,28 +296,38 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
                         from pdf2image import convert_from_bytes
                         imagens = convert_from_bytes(arquivo_bytes)
 
-                        elementos.append(Paragraph("ATA Anexada:", estilo))
+                        elementos.append(Paragraph("<b>ATA Anexada:</b>", normal_style))
                         elementos.append(Spacer(1, 10))
 
                         for img in imagens:
                             img_stream = BytesIO()
                             img.save(img_stream, format="PNG")
                             img_stream.seek(0)
-                            elementos.append(Image(img_stream, width=5*inch, height=7*inch))
+
+                            elementos.append(
+                                Image(img_stream, width=5*inch, height=7*inch)
+                            )
                             elementos.append(Spacer(1, 10))
 
-                    except:
-                        elementos.append(Paragraph("ATA em PDF (não foi possível converter).", estilo))
+                    except Exception:
+                        elementos.append(
+                            Paragraph("ATA em PDF (não foi possível converter).", normal_style)
+                        )
 
                 else:
                     # Se for imagem
                     img_stream = BytesIO(arquivo_bytes)
-                    elementos.append(Paragraph("ATA Anexada:", estilo))
-                    elementos.append(Spacer(1, 10))
-                    elementos.append(Image(img_stream, width=5*inch, height=7*inch))
 
-            except:
-                elementos.append(Paragraph("Erro ao carregar ATA.", estilo))
+                    elementos.append(Paragraph("<b>ATA Anexada:</b>", normal_style))
+                    elementos.append(Spacer(1, 10))
+                    elementos.append(
+                        Image(img_stream, width=5*inch, height=7*inch)
+                    )
+
+            except Exception:
+                elementos.append(
+                    Paragraph("Erro ao carregar ATA.", normal_style)
+                )
 
         elementos.append(PageBreak())
 
