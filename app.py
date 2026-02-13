@@ -207,18 +207,35 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     import os
     import base64
     from io import BytesIO
+    from datetime import datetime
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak
-    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.units import inch
+    from reportlab.lib import colors
 
     caminho = os.path.join(os.getcwd(), nome_arquivo)
     doc = SimpleDocTemplate(caminho)
 
-    # ✅ PRIMEIRO CRIA A LISTA
     elementos = []
 
     styles = getSampleStyleSheet()
-    estilo = styles["Normal"]
+
+    # ===== ESTILOS PERSONALIZADOS =====
+    cabecalho_style = ParagraphStyle(
+        'Cabecalho',
+        parent=styles['Normal'],
+        fontSize=12,
+        textColor=colors.black,
+        alignment=1,  # Centralizado
+        spaceAfter=6
+    )
+
+    normal_style = ParagraphStyle(
+        'NormalCustom',
+        parent=styles['Normal'],
+        fontSize=11,
+        spaceAfter=4
+    )
 
     # ===== BRASÃO CENTRALIZADO =====
     caminho_logo = os.path.join(os.getcwd(), "BRASÃO1.png")
@@ -228,6 +245,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
         elementos.append(logo)
         elementos.append(Spacer(1, 15))
 
+    # ===== CABEÇALHO =====
     elementos.append(Paragraph(
         "<b>COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZI</b>",
         cabecalho_style
@@ -275,9 +293,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
                             img.save(img_stream, format="PNG")
                             img_stream.seek(0)
 
-                            elementos.append(
-                                Image(img_stream, width=5*inch, height=7*inch)
-                            )
+                            elementos.append(Image(img_stream, width=5*inch, height=7*inch))
                             elementos.append(Spacer(1, 10))
 
                     except Exception:
@@ -289,23 +305,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
                     # Se for imagem
                     img_stream = BytesIO(arquivo_bytes)
 
-                    elementos.append(Paragraph("<b>ATA Anexada:</b>", normal_style))
-                    elementos.append(Spacer(1, 10))
-                    elementos.append(
-                        Image(img_stream, width=5*inch, height=7*inch)
-                    )
-
-            except Exception:
-                elementos.append(
-                    Paragraph("Erro ao carregar ATA.", normal_style)
-                )
-
-        elementos.append(PageBreak())
-
-    doc.build(elementos)
-
-    return caminho
-
+                    elementos.append(Paragraph("<b>ATA Anexada:</
 # --- Login ---
 def pagina_login():
     st.markdown("## 👤 Login de Usuário - V2.0.3 by Leandro Malheiros")
