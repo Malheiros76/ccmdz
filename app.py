@@ -122,9 +122,11 @@ Este relatório foi gerado automaticamente pelo Sistema de Ocorrências."""
     return msg
 
 def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
-    import os
-    import base64
+   import os
     from docx import Document
+    from docx.shared import Pt, Inches
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from datetime import datetime
 
     caminho = os.path.join(os.getcwd(), nome_arquivo)
 
@@ -132,8 +134,30 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
     os.makedirs(pasta_ata, exist_ok=True)
 
     doc = Document()
-    doc.add_heading("RELATÓRIO DE OCORRÊNCIAS", level=1)
+    
+    # =========================
+    # CABEÇALHO COM BRASÃO
+    # =========================
+    section = doc.sections[0]
+    header = section.header
 
+    header_paragraph = header.paragraphs[0]
+    header_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    if os.path.exists("BRASÃO.png"):
+        run = header_paragraph.add_run()
+        run.add_picture("BRASÃO1.png", width=Inches(1.2))
+
+    header_paragraph.add_run(
+        "\nCOLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZ\n"
+    )
+    header_paragraph.add_run("Relatório Oficial de Ocorrências\n")
+    header_paragraph.add_run(
+        f"Gerado em: {datetime.now().strftime('%d/%m/%Y às %H:%M')}"
+    )
+
+    doc.add_paragraph("\n")
+    doc.add_heading("RELATÓRIO DE OCORRÊNCIAS", level=1)
     for i, o in enumerate(ocorrencias, start=1):
         doc.add_paragraph(f"Aluno: {o.get('nome', '')}")
         doc.add_paragraph(f"CGM: {o.get('cgm', '')}")
@@ -174,49 +198,54 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
     return caminho
 
 def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
-    import os
-    import base64
+     import os
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas
+    from datetime import datetime
 
     caminho = os.path.join(os.getcwd(), nome_arquivo)
     c = canvas.Canvas(caminho, pagesize=A4)
     largura, altura = A4
 
-    y = altura - 40
-    c.setFont("Helvetica", 10)
-    c.drawString(40, y, "RELATÓRIO DE OCORRÊNCIAS")
-    y -= 30
+    def desenhar_cabecalho():
+        # Brasão
+        if os.path.exists("BRASÃO1.png"):
+            c.drawImage(
+                "BRASÃO1.png",
+                40,
+                altura - 90,
+                width=60,
+                height=60,
+                preserveAspectRatio=True,
+                mask='auto'
+            )
 
-    for o in ocorrencias:
-        linhas = [
-            f"Aluno: {o.get('nome', '')}",
-            f"CGM: {o.get('cgm', '')}",
-            f"Data: {o.get('data', '')}",
-            f"Descrição: {o.get('descricao', '')}",
-        ]
+        # Texto
+        c.setFont("Helvetica-Bold", 12)
+        c.drawCentredString(
+            largura / 2,
+            altura - 40,
+            "COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZ"
+        )
 
-        ata = o.get("ata", "")
-        if ata:
-            try:
-                base64.b64decode(ata)
-                linhas.append("ATA: arquivo anexado (PDF/JPG)")
-            except Exception:
-                linhas.append(f"ATA (texto): {ata}")
+        c.setFont("Helvetica", 10)
+        c.drawCentredString(
+            largura / 2,
+            altura - 55,
+            "Relatório Oficial de Ocorrências"
+        )
 
-        linhas.append("-" * 60)
+        c.drawCentredString(
+            largura / 2,
+            altura - 70,
+            f"Gerado em: {datetime.now().strftime('%d/%m/%Y às %H:%M')}"
+        )
 
-        for linha in linhas:
-            if y < 50:
-                c.showPage()
-                c.setFont("Helvetica", 10)
-                y = altura - 40
-            c.drawString(40, y, linha)
-            y -= 15
+        c.line(40, altura - 100, largura - 40, altura - 100)
 
-    c.save()
-    return caminho
+    desenhar_cabecalho()
 
+    y = altura - 120
 
 # --- Login ---
 def pagina_login():
