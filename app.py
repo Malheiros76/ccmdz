@@ -305,7 +305,17 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
                     # Se for imagem
                     img_stream = BytesIO(arquivo_bytes)
 
-                    elementos.append(Paragraph("<b>ATA Anexada:</b>", normal_style))
+                      except Exception:
+                elementos.append(
+                    Paragraph("Erro ao carregar ATA.", normal_style)
+                )
+
+        elementos.append(PageBreak())
+
+    doc.build(elementos)
+
+    return caminho
+
 # --- Login ---
 def pagina_login():
     st.markdown("## 👤 Login de Usuário - V2.0.3 by Leandro Malheiros")
