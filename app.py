@@ -199,7 +199,7 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
     return caminho
 
 def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
-     import os
+    import os
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas
     from datetime import datetime
@@ -209,10 +209,9 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     largura, altura = A4
 
     def desenhar_cabecalho():
-        # Brasão
-        if os.path.exists("BRASÃO1.png"):
+        if os.path.exists("BRASAO1.png") and os.path.getsize("BRASAO1.png") > 0:
             c.drawImage(
-                "BRASÃO1.png",
+                "BRASAO1.png",
                 40,
                 altura - 90,
                 width=60,
@@ -221,12 +220,11 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
                 mask='auto'
             )
 
-        # Texto
         c.setFont("Helvetica-Bold", 12)
         c.drawCentredString(
             largura / 2,
             altura - 40,
-            "COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZ"
+            "COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZI"
         )
 
         c.setFont("Helvetica", 10)
@@ -247,6 +245,28 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     desenhar_cabecalho()
 
     y = altura - 120
+
+    for o in ocorrencias:
+
+        linhas = [
+            f"Aluno: {o.get('nome', '')}",
+            f"CGM: {o.get('cgm', '')}",
+            f"Data: {o.get('data', '')}",
+            f"Descrição: {o.get('descricao', '')}",
+            "-" * 80
+        ]
+
+        for linha in linhas:
+            if y < 60:
+                c.showPage()
+                desenhar_cabecalho()
+                y = altura - 120
+
+            c.drawString(50, y, linha)
+            y -= 15
+
+    c.save()
+    return caminho
 
 # --- Login ---
 def pagina_login():
