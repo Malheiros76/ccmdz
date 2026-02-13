@@ -137,8 +137,8 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
     doc = Document()
 
     # ===== CABEÇALHO INSTITUCIONAL =====
-    if os.path.exists("BRASAO1.png") and os.path.getsize("BRASAO1.png") > 0:
-        doc.add_picture("BRASAO1.png", width=Inches(1.2))
+    if os.path.exists("BRASÃO1.png") and os.path.getsize("BRASÃO1.png") > 0:
+        doc.add_picture("BRASÃO1.png", width=Inches(1.2))
 
     titulo = doc.add_paragraph()
     titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -253,8 +253,8 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     normal_style = styles["Normal"]
 
     # ===== CABEÇALHO INSTITUCIONAL =====
-    if os.path.exists("BRASAO1.png") and os.path.getsize("BRASAO1.png") > 0:
-        elementos.append(Image("BRASAO1.png", width=1.2*inch, height=1.2*inch))
+    if os.path.exists("BRASÃO1.png") and os.path.getsize("BRASÃO1.png") > 0:
+        elementos.append(Image("BRASÃO1.png", width=1.2*inch, height=1.2*inch))
         elementos.append(Spacer(1, 10))
 
     elementos.append(Paragraph(
