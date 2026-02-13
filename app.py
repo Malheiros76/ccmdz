@@ -432,8 +432,8 @@ def pagina_ocorrencias():
                 ata = st.text_input("📄 ATA (opcional)", key="ata_nova")
 
                 arquivo_ata = st.file_uploader(
-                    "📤 Importar ATA (PDF ou JPG)",
-                    type=["pdf", "jpg", "jpeg"],
+                    "📤 Importar ATA (Somente JPG)",
+                    type=["jpg", "jpeg"],
                     key="upload_ata_nova"
                 )
 
