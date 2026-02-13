@@ -217,16 +217,14 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     doc = SimpleDocTemplate(caminho)
 
     elementos = []
-
     styles = getSampleStyleSheet()
 
-    # ===== ESTILOS PERSONALIZADOS =====
     cabecalho_style = ParagraphStyle(
         'Cabecalho',
         parent=styles['Normal'],
         fontSize=12,
         textColor=colors.black,
-        alignment=1,  # Centralizado
+        alignment=1,
         spaceAfter=6
     )
 
@@ -237,7 +235,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
         spaceAfter=4
     )
 
-    # ===== BRASÃO CENTRALIZADO =====
+    # ===== BRASÃO =====
     caminho_logo = os.path.join(os.getcwd(), "BRASÃO1.png")
     if os.path.exists(caminho_logo):
         logo = Image(caminho_logo, width=1.5*inch, height=1.5*inch)
@@ -272,14 +270,12 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
         elementos.append(Paragraph(f"<b>Descrição:</b> {ocorr.get('descricao','')}", normal_style))
         elementos.append(Spacer(1, 15))
 
-        # ===== ATA ANEXADA =====
         ata_base64 = ocorr.get("ata")
 
         if ata_base64:
             try:
                 arquivo_bytes = base64.b64decode(ata_base64)
 
-                # Se for PDF
                 if arquivo_bytes[:4] == b"%PDF":
                     try:
                         from pdf2image import convert_from_bytes
@@ -302,10 +298,14 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
                         )
 
                 else:
-                    # Se for imagem
+                    # ===== SE FOR IMAGEM =====
                     img_stream = BytesIO(arquivo_bytes)
 
-                except Exception:
+                    elementos.append(Paragraph("<b>ATA Anexada:</b>", normal_style))
+                    elementos.append(Spacer(1, 10))
+                    elementos.append(Image(img_stream, width=5*inch, height=7*inch))
+
+            except Exception:
                 elementos.append(
                     Paragraph("Erro ao carregar ATA.", normal_style)
                 )
