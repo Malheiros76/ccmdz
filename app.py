@@ -122,7 +122,7 @@ Este relatório foi gerado automaticamente pelo Sistema de Ocorrências."""
     return msg
 
 def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
-   import os
+    import os
     from docx import Document
     from docx.shared import Pt, Inches
     from docx.enum.text import WD_ALIGN_PARAGRAPH
