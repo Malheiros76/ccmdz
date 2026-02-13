@@ -1,4 +1,5 @@
 import streamlit as st
+import hashlib
 from pymongo import MongoClient
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -627,18 +628,6 @@ def pagina_lista():
         st.dataframe(df.sort_values("nome"))
     else:
         st.info("Nenhum aluno cadastrado.")
-
-# --- Cadastro de Usuários ---
-import streamlit as st
-from pymongo import MongoClient
-import hashlib
-
-def conectar():
-    uri = "mongodb+srv://bibliotecaluizcarlos_db_user:oXl7eMBLmzjaSn8G@cluster0.1kgiqh2.mongodb.net/?retryWrites=true&w=majority"
-    cliente = MongoClient(uri)
-    return cliente["escola"]
-
-db = conectar()
 
 # --- Cadastro de Usuários ---
 def pagina_usuarios():
