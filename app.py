@@ -126,35 +126,23 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
     import os
     import base64
     from io import BytesIO
-    from datetime import datetime
-
     from docx import Document
-    from docx.shared import Inches, Pt
+    from docx.shared import Inches
     from docx.enum.text import WD_ALIGN_PARAGRAPH
-    from docx.oxml.ns import qn
-    from docx.oxml import OxmlElement
 
     doc = Document()
 
-    # ===== CABEÇALHO INSTITUCIONAL =====
-    if os.path.exists("BRASÃO1.png") and os.path.getsize("BRASÃO1.png") > 0:
-        doc.add_picture("BRASÃO1.png", width=Inches(1.2))
+    # ===== BRASÃO CENTRALIZADO =====
+    caminho_logo = os.path.join(os.getcwd(), "BRASÃO1.png")
+    if os.path.exists(caminho_logo):
+        paragrafo_logo = doc.add_paragraph()
+        paragrafo_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = paragrafo_logo.add_run()
+        run.add_picture(caminho_logo, width=Inches(1.5))
 
-    titulo = doc.add_paragraph()
+    # Título centralizado
+    titulo = doc.add_heading("RELATÓRIO DE OCORRÊNCIAS", level=1)
     titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = titulo.add_run("COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZI\n")
-    run.bold = True
-    run.font.size = Pt(14)
-
-    subtitulo = doc.add_paragraph("Relatório Oficial de Ocorrências")
-    subtitulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    data_doc = doc.add_paragraph(
-        f"Gerado em: {datetime.now().strftime('%d/%m/%Y às %H:%M')}"
-    )
-    data_doc.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_paragraph("\n")
 
     # ===== OCORRÊNCIAS =====
     for ocorr in ocorrencias:
