@@ -14,3 +14,4 @@ streamlit
 fpdf
 pillow
 pytz
+pdf2image
