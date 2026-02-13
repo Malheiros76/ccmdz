@@ -305,7 +305,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
                     # Se for imagem
                     img_stream = BytesIO(arquivo_bytes)
 
-                      except Exception:
+                except Exception:
                 elementos.append(
                     Paragraph("Erro ao carregar ATA.", normal_style)
                 )
