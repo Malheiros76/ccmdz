@@ -207,21 +207,18 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     import os
     import base64
     from io import BytesIO
-    from datetime import datetime
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.units import inch
 
-    from reportlab.platypus import (
-        SimpleDocTemplate,
-        Paragraph,
-        Spacer,
-        Image,
-        PageBreak
-    )
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib import colors
-    from reportlab.lib.units import inch
-    from reportlab.lib.pagesizes import A4
-    from reportlab.platypus import Image
-    from reportlab.lib.units import inch
+    caminho = os.path.join(os.getcwd(), nome_arquivo)
+    doc = SimpleDocTemplate(caminho)
+
+    # ✅ PRIMEIRO CRIA A LISTA
+    elementos = []
+
+    styles = getSampleStyleSheet()
+    estilo = styles["Normal"]
 
     # ===== BRASÃO CENTRALIZADO =====
     caminho_logo = os.path.join(os.getcwd(), "BRASÃO1.png")
@@ -230,7 +227,6 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
         logo.hAlign = 'CENTER'
         elementos.append(logo)
         elementos.append(Spacer(1, 15))
-
 
     elementos.append(Paragraph(
         "<b>COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZI</b>",
