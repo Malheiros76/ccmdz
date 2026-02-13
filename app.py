@@ -220,30 +220,17 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
     from reportlab.lib import colors
     from reportlab.lib.units import inch
     from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import Image
+    from reportlab.lib.units import inch
 
-    caminho = os.path.join(os.getcwd(), nome_arquivo)
-    doc = SimpleDocTemplate(caminho, pagesize=A4)
-    elementos = []
+    # ===== BRASÃO CENTRALIZADO =====
+    caminho_logo = os.path.join(os.getcwd(), "BRASÃO1.png")
+    if os.path.exists(caminho_logo):
+        logo = Image(caminho_logo, width=1.5*inch, height=1.5*inch)
+        logo.hAlign = 'CENTER'
+        elementos.append(logo)
+        elementos.append(Spacer(1, 15))
 
-    styles = getSampleStyleSheet()
-
-    # ===== ESTILOS PERSONALIZADOS =====
-    titulo_style = styles["Title"]
-
-    cabecalho_style = ParagraphStyle(
-        name="CabecalhoCentralizado",
-        parent=styles["Normal"],
-        alignment=1,  # centralizado
-        fontSize=12,
-        spaceAfter=6
-    )
-
-    normal_style = styles["Normal"]
-
-    # ===== CABEÇALHO INSTITUCIONAL =====
-    if os.path.exists("BRASÃO1.png") and os.path.getsize("BRASÃO1.png") > 0:
-        elementos.append(Image("BRASÃO1.png", width=1.2*inch, height=1.2*inch))
-        elementos.append(Spacer(1, 10))
 
     elementos.append(Paragraph(
         "<b>COLÉGIO CÍVICO MILITAR DOMINGOS ZANLORENZI</b>",
