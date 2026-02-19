@@ -81,17 +81,17 @@ import pandas as pd
 def data_segura(valor):
     try:
         if not valor:
-            return agora_brasil().date()
+            return agora_local().date()
 
         data = pd.to_datetime(valor, errors="coerce")
 
         if pd.isna(data):
-            return agora_brasil().date()
+            return agora_local().date()
 
         return data.date()
 
     except Exception:
-        return agora_brasil().date()
+        return agora_local().date()
 
 def formatar_mensagem_whatsapp(ocorrencias, nome):
     msg = f"""📋 RELATÓRIO DE OCORRÊNCIAS
