@@ -675,53 +675,44 @@ def pagina_exportar():
                     key=f"download_pdf_{uid}"
                 )
 
-  # 🔥 BUSCA TODAS OCORRÊNCIAS
-resultados = list(db.ocorrencias.find())
+    # ===================== AGRUPADO POR ALUNO =====================
+    st.subheader("📄 Relatórios Individuais por Aluno")
 
-# ===================== AGRUPADO POR ALUNO =====================
-st.subheader("📄 Relatórios Individuais por Aluno")
+    ocorrencias_por_aluno = {}
 
-ocorrencias_por_aluno = {}
+    for ocorr in resultados:
+        nome = ocorr.get("nome", "")
+        ocorrencias_por_aluno.setdefault(nome, []).append(ocorr)
 
-for ocorr in resultados:
-    nome = ocorr.get("nome", "")
-    ocorrencias_por_aluno.setdefault(nome, []).append(ocorr)
+    for nome, lista in sorted(ocorrencias_por_aluno.items()):
 
-for nome, lista in sorted(ocorrencias_por_aluno.items()):
+        with st.expander(f"📄 Relatório de {nome}"):
 
-    with st.expander(f"📄 Relatório de {nome}"):
+            telefone = lista[0].get("telefone", "")
 
-        # 🔥 BUSCAR TELEFONE ATUALIZADO NO BANCO
-        cgm = lista[0].get("cgm", "")
-        aluno_atual = db.alunos.find_one({"cgm": cgm})
-        telefone = aluno_atual.get("telefone", "") if aluno_atual else ""
+            for ocorr in lista:
+                st.write(f"📅 {ocorr.get('data', '')} - 📝 {ocorr.get('descricao', '')}")
 
-        for ocorr in lista:
-            st.write(f"📅 {ocorr.get('data', '')} - 📝 {ocorr.get('descricao', '')}")
+            mensagem = formatar_mensagem_whatsapp(lista, nome)
 
-        mensagem = formatar_mensagem_whatsapp(lista, nome)
-
-        st.text_area(
-            "📋 WhatsApp",
-            mensagem,
-            height=200,
-            key=f"msg_{nome}_{lista[0]['_id']}"
-        )
-
-        if telefone:
-            numero = (
-                telefone.replace("(", "")
-                .replace(")", "")
-                .replace("-", "")
-                .replace(" ", "")
+            st.text_area(
+                "📋 WhatsApp",
+                mensagem,
+                height=200,
+                key=f"msg_{nome}_{lista[0]['_id']}"
             )
 
-            import urllib.parse
-            link = f"https://api.whatsapp.com/send?phone=55{numero}&text={urllib.parse.quote(mensagem)}"
+            if telefone:
+                numero = (
+                    telefone.replace("(", "")
+                    .replace(")", "")
+                    .replace("-", "")
+                    .replace(" ", "")
+                )
 
-            st.markdown(f"[📱 Enviar para {telefone}]({link})")
-        else:
-            st.warning("⚠️ Telefone não cadastrado para este aluno.")
+                link = f"https://api.whatsapp.com/send?phone=55{numero}&text={urllib.parse.quote(mensagem)}"
+
+                st.markdown(f"[📱 Enviar para {telefone}]({link})")
 
             col1, col2 = st.columns(2)
 
