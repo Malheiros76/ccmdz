@@ -394,7 +394,7 @@ def pagina_cadastro():
                 }
             }, upsert=True)
             st.success("✅ Aluno salvo ou atualizado com sucesso!")
-            rerun()
+            st.rerun()
         else:
             st.error("Preencha todos os campos obrigatórios.")
 
@@ -403,10 +403,10 @@ def pagina_cadastro():
         if st.button("✅ Confirmar Exclusão"):
             db.alunos.delete_one({"cgm": aluno_carregado["cgm"]})
             st.success("✅ Aluno excluído com sucesso!")
-            st.experimental_rerun()
+            st.rerun()
 
     if limpar:
-        st.experimental_rerun()
+        st.rerun()
 
     # --- Importação de alunos via arquivo ---
     st.subheader("📥 Importar Alunos via TXT ou CSV")
@@ -572,7 +572,7 @@ def pagina_ocorrencias():
                         if st.button("🗑️ Excluir Ocorrência", key=f"del_{ocorrencia['_id']}"):
                             db.ocorrencias.delete_one({"_id": ocorrencia["_id"]})
                             st.success("🗑️ Ocorrência excluída com sucesso!")
-                            st.experimental_rerun()
+                            st.rerun()
 
 def pagina_exportar():
     import urllib
