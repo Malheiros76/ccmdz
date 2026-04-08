@@ -394,7 +394,7 @@ def pagina_cadastro():
                 }
             }, upsert=True)
             st.success("✅ Aluno salvo ou atualizado com sucesso!")
-            st.experimental_rerun()
+            rerun()
         else:
             st.error("Preencha todos os campos obrigatórios.")
 
