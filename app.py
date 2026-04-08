@@ -675,7 +675,10 @@ def pagina_exportar():
                     key=f"download_pdf_{uid}"
                 )
 
-   # ===================== AGRUPADO POR ALUNO =====================
+  # 🔥 BUSCA TODAS OCORRÊNCIAS
+resultados = list(db.ocorrencias.find())
+
+# ===================== AGRUPADO POR ALUNO =====================
 st.subheader("📄 Relatórios Individuais por Aluno")
 
 ocorrencias_por_aluno = {}
@@ -705,7 +708,6 @@ for nome, lista in sorted(ocorrencias_por_aluno.items()):
             key=f"msg_{nome}_{lista[0]['_id']}"
         )
 
-        # 📱 BOTÃO WHATSAPP
         if telefone:
             numero = (
                 telefone.replace("(", "")
