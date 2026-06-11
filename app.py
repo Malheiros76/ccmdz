@@ -2,6 +2,7 @@ import streamlit as st
 import hashlib
 from pymongo import MongoClient
 from datetime import datetime
+from datetime import date
 from bson.objectid import ObjectId
 from docx import Document
 from docx.shared import Inches
