@@ -691,7 +691,15 @@ def pagina_exportar():
 
         with st.expander(f"📄 Relatório de {nome}"):
 
-            telefone = lista[0].get("telefone", "")
+            # Busca sempre o telefone atualizado do cadastro do aluno
+                cgm = lista[0].get("cgm", "")
+                
+                aluno = db.alunos.find_one(
+                    {"cgm": cgm},
+                    {"telefone": 1, "_id": 0}
+                )
+                
+                telefone = aluno.get("telefone", "") if aluno else ""
 
             for ocorr in lista:
                 st.write(f"📅 {ocorr.get('data', '')} - 📝 {ocorr.get('descricao', '')}")
