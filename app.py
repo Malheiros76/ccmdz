@@ -368,9 +368,13 @@ def pagina_cadastro():
         cgm = st.text_input("CGM", value=aluno_carregado["cgm"] if aluno_carregado else "")
         nome = st.text_input("Nome", value=aluno_carregado["nome"] if aluno_carregado else "")
         data = st.date_input(
+        from datetime import date
+        data = st.date_input(
         "Data de Nascimento",
-            value=data_segura(aluno_carregado.get("data") if aluno_carregado else None)
-    )
+        value=data_segura(aluno_carregado.get("data")) if aluno_carregado else date(1900, 1, 1),
+        min_value=date(1900, 1, 1),
+        max_value=date.today(),
+        format="DD/MM/YYYY")
         telefone = st.text_input("Telefone", value=aluno_carregado["telefone"] if aluno_carregado else "")
         responsavel = st.text_input("Responsável", value=aluno_carregado["responsavel"] if aluno_carregado else "")
         turma = st.text_input("Turma", value=aluno_carregado["turma"] if aluno_carregado else "")
