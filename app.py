@@ -689,17 +689,17 @@ def pagina_exportar():
 
     for nome, lista in sorted(ocorrencias_por_aluno.items()):
 
-        with st.expander(f"📄 Relatório de {nome}"):
-
-            # Busca sempre o telefone atualizado do cadastro do aluno
-                cgm = lista[0].get("cgm", "")
-                
-                aluno = db.alunos.find_one(
-                    {"cgm": cgm},
-                    {"telefone": 1, "_id": 0}
-                )
-                
-                telefone = aluno.get("telefone", "") if aluno else ""
+            with st.expander(f"📄 Relatório de {nome}"):
+    
+                # Busca sempre o telefone atualizado do cadastro do aluno
+                    cgm = lista[0].get("cgm", "")
+                    
+                    aluno = db.alunos.find_one(
+                        {"cgm": cgm},
+                        {"telefone": 1, "_id": 0}
+                    )
+                    
+                    telefone = aluno.get("telefone", "") if aluno else ""
 
             for ocorr in lista:
                 st.write(f"📅 {ocorr.get('data', '')} - 📝 {ocorr.get('descricao', '')}")
