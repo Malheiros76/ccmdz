@@ -689,64 +689,71 @@ def pagina_exportar():
 
     for nome, lista in sorted(ocorrencias_por_aluno.items()):
 
-        with st.expander(f"📄 Relatório de {nome}"):
-    
-       # Busca sempre o telefone atualizado do cadastro do aluno
-            cgm = lista[0].get("cgm", "")
-                    
-            aluno = db.alunos.find_one(
-                {"cgm": cgm},
-                {"telefone": 1, "_id": 0}
+    with st.expander(f"📄 Relatório de {nome}"):
+
+        # Busca sempre o telefone atualizado do cadastro do aluno
+        cgm = lista[0].get("cgm", "")
+
+        aluno = db.alunos.find_one(
+            {"cgm": cgm},
+            {"telefone": 1, "_id": 0}
         )
-                    
+
         telefone = aluno.get("telefone", "") if aluno else ""
 
-            for ocorr in lista:
-                st.write(f"📅 {ocorr.get('data', '')} - 📝 {ocorr.get('descricao', '')}")
+        for ocorr in lista:
+            st.write(f"📅 {ocorr.get('data', '')} - 📝 {ocorr.get('descricao', '')}")
 
-            mensagem = formatar_mensagem_whatsapp(lista, nome)
+        mensagem = formatar_mensagem_whatsapp(lista, nome)
 
-            st.text_area(
-                "📋 WhatsApp",
-                mensagem,
-                height=200,
-                key=f"msg_{nome}_{lista[0]['_id']}"
+        st.text_area(
+            "📋 WhatsApp",
+            mensagem,
+            height=200,
+            key=f"msg_{nome}_{lista[0]['_id']}"
+        )
+
+        if telefone:
+            numero = (
+                telefone.replace("(", "")
+                .replace(")", "")
+                .replace("-", "")
+                .replace(" ", "")
             )
 
-            if telefone:
-                numero = (
-                    telefone.replace("(", "")
-                    .replace(")", "")
-                    .replace("-", "")
-                    .replace(" ", "")
+            link = f"https://api.whatsapp.com/send?phone=55{numero}&text={urllib.parse.quote(mensagem)}"
+
+            st.markdown(f"[📱 Enviar para {telefone}]({link})")
+
+        col1, col2 = st.columns(2)
+
+        if col1.button("📄 Gerar DOCX", key=f"doc_{nome}_{lista[0]['_id']}"):
+            caminho = exportar_ocorrencias_para_word(
+                lista,
+                f"relatorio_{nome.replace(' ','_')}.docx"
+            )
+
+            with open(caminho, "rb") as f:
+                st.download_button(
+                    "📥 Baixar DOCX",
+                    f.read(),
+                    file_name=f"relatorio_{nome.replace(' ','_')}.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
 
-                link = f"https://api.whatsapp.com/send?phone=55{numero}&text={urllib.parse.quote(mensagem)}"
+        if col2.button("🧾 Gerar PDF", key=f"pdf_{nome}_{lista[0]['_id']}"):
+            caminho = exportar_ocorrencias_para_pdf(
+                lista,
+                f"relatorio_{nome.replace(' ','_')}.pdf"
+            )
 
-                st.markdown(f"[📱 Enviar para {telefone}]({link})")
-
-            col1, col2 = st.columns(2)
-
-            if col1.button("📄 Gerar DOCX", key=f"doc_{nome}_{lista[0]['_id']}"):
-                caminho = exportar_ocorrencias_para_word(
-                    lista,
-                    f"relatorio_{nome.replace(' ','_')}.docx"
+            with open(caminho, "rb") as f:
+                st.download_button(
+                    "📥 Baixar PDF",
+                    f.read(),
+                    file_name=f"relatorio_{nome.replace(' ','_')}.pdf",
+                    mime="application/pdf"
                 )
-
-                with open(caminho, "rb") as f:
-                    st.download_button(
-                        "📥 Baixar DOCX",
-                        f.read(),
-                        file_name=f"relatorio_{nome.replace(' ','_')}.docx",
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    )
-
-            if col2.button("🧾 Gerar PDF", key=f"pdf_{nome}_{lista[0]['_id']}"):
-                caminho = exportar_ocorrencias_para_pdf(
-                    lista,
-                    f"relatorio_{nome.replace(' ','_')}.pdf"
-                )
-
                 with open(caminho, "rb") as f:
                     st.download_button(
                         "📥 Baixar PDF",
