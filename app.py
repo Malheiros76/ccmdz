@@ -369,8 +369,6 @@ def pagina_cadastro():
         cgm = st.text_input("CGM", value=aluno_carregado["cgm"] if aluno_carregado else "")
         nome = st.text_input("Nome", value=aluno_carregado["nome"] if aluno_carregado else "")
         data = st.date_input(
-        from datetime import date
-        data = st.date_input(
         "Data de Nascimento",
         value=data_segura(aluno_carregado.get("data")) if aluno_carregado else date(1900, 1, 1),
         min_value=date(1900, 1, 1),
