@@ -513,6 +513,9 @@ def pagina_ocorrencias():
                     "Dano ao Patrimônio",
                     "Falta Injustificada",
                     "Outros"
+                    "Gazeando aulas"
+                    "Sair da sala sem autorização"
+                    "Uniforme incompleto/incorreto"
                 ]
 
                 tipo_ocorrencia = st.selectbox(
@@ -574,6 +577,9 @@ def pagina_ocorrencias():
                     "Dano ao Patrimônio",
                     "Falta Injustificada",
                     "Outros"
+                    "Gazeando aulas"
+                    "Sair da sala sem autorização"
+                    "Uniforme incompleto/incorreto"
                 ]
 
                 tipo_ocorrencia = st.selectbox(
