@@ -17,16 +17,13 @@ from io import BytesIO
 # ============================================================
 # CONFIGURAÇÃO DA PÁGINA
 # ============================================================
-
 st.set_page_config(
     page_title="Sistema Escolar - CCMDZ by Leandro Malheiros V2.0.3",
     layout="centered"
 )
-
 # ============================================================
 # ESTILIZAÇÃO VISUAL
 # ============================================================
-
 st.markdown("""
 <style>
     .stApp {
@@ -91,7 +88,6 @@ def agora_local():
 # ============================================================
 # CONEXÃO COM MONGODB
 # ============================================================
-
 @st.cache_resource
 def conectar():
     uri = "mongodb+srv://bibliotecaluizcarlos_db_user:oXl7eMBLmzjaSn8G@cluster0.1kgiqh2.mongodb.net/?retryWrites=true&w=majority"
@@ -100,12 +96,9 @@ def conectar():
 
 
 db = conectar()
-
-
 # ============================================================
 # ÍNDICES DO BANCO
 # ============================================================
-
 try:
     db.alunos.create_index("cgm")
     db.ocorrencias.create_index("cgm")
@@ -114,12 +107,9 @@ try:
     db.tipos_ocorrencias.create_index("nome", unique=True)
 except Exception as e:
     print("Aviso ao criar índices:", e)
-
-
 # ============================================================
 # FUNÇÕES AUXILIARES
 # ============================================================
-
 def data_segura(valor):
     try:
         if not valor:
@@ -134,14 +124,11 @@ def data_segura(valor):
 
     except Exception:
         return agora_local().date()
-
-
 def obter_tipos_ocorrencias():
     """
     Retorna os tipos cadastrados no MongoDB.
     Se não houver nenhum tipo, cria automaticamente 'Outros'.
     """
-
     try:
         tipos = list(
             db.tipos_ocorrencias.find(
@@ -167,14 +154,10 @@ def obter_tipos_ocorrencias():
                 nomes.append("Outros")
             except Exception:
                 pass
-
         return sorted(set(nomes))
-
     except Exception as e:
         print("Erro ao buscar tipos:", e)
         return ["Outros"]
-
-
 def formatar_tipo_ocorrencia(ocorrencia):
     """
     Compatibilidade com ocorrências antigas.
@@ -2724,4 +2707,3 @@ else:
     else:
 
         menu()
-```
