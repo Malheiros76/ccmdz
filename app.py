@@ -936,7 +936,7 @@ def pagina_tipos_ocorrencias():
                                 "Tipo atualizado!"
                             )
                             st.rerun()
-                    except Exception as e:
+                     except Exception as e:
                         st.error(
                             f"Erro: {e}"
                         )
