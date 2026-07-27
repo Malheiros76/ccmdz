@@ -2615,7 +2615,6 @@ def pagina_usuarios():
 # MENU LATERAL
 # ============================================================
 
-```python
 def menu():
 
     st.sidebar.image(
