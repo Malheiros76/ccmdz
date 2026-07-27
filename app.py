@@ -512,9 +512,9 @@ def pagina_ocorrencias():
                     "Desrespeito",
                     "Dano ao Patrimônio",
                     "Falta Injustificada",
-                    "Outros"
-                    "Gazeando aulas"
-                    "Sair da sala sem autorização"
+                    "Outros",
+                    "Gazeando aulas",
+                    "Sair da sala sem autorização",
                     "Uniforme incompleto/incorreto"
                 ]
 
@@ -576,9 +576,9 @@ def pagina_ocorrencias():
                     "Desrespeito",
                     "Dano ao Patrimônio",
                     "Falta Injustificada",
-                    "Outros"
-                    "Gazeando aulas"
-                    "Sair da sala sem autorização"
+                    "Outros",
+                    "Gazeando aulas",
+                    "Sair da sala sem autorização",
                     "Uniforme incompleto/incorreto"
                 ]
 
