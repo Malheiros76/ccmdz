@@ -14,7 +14,7 @@ import pytz
 
 import base64
 
-st.set_page_config(page_title="Sistema Escolar - CCMDZ by Leandro Malheiros V2.0.3 ", layout="centered")
+st.set_page_config(page_title="Sistema Escolar - CCMDZ by Leandro Malheiros V2.0.4 ", layout="centered")
 
 # --- Estilização Visual ---
 st.markdown("""
@@ -156,6 +156,9 @@ def exportar_ocorrencias_para_word(ocorrencias, nome_arquivo):
         doc.add_paragraph().add_run("CGM: ").bold = True
         doc.paragraphs[-1].add_run(f"{ocorr.get('cgm','')}")
 
+        doc.add_paragraph().add_run("Tipo: ").bold = True
+        doc.paragraphs[-1].add_run(f"{ocorr.get('tipo_ocorrencia','Não informado')}")
+
         doc.add_paragraph().add_run("Data: ").bold = True
         doc.paragraphs[-1].add_run(f"{ocorr.get('data','')}")
 
@@ -269,6 +272,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
 
         elementos.append(Paragraph(f"<b>Aluno:</b> {ocorr.get('nome','')}", normal_style))
         elementos.append(Paragraph(f"<b>CGM:</b> {ocorr.get('cgm','')}", normal_style))
+        elementos.append(Paragraph(f"<b>Tipo:</b> {ocorr.get('tipo_ocorrencia','Não informado')}", normal_style))
         elementos.append(Paragraph(f"<b>Data:</b> {ocorr.get('data','')}", normal_style))
         elementos.append(Paragraph(f"<b>Descrição:</b> {ocorr.get('descricao','')}", normal_style))
         elementos.append(Spacer(1, 15))
@@ -321,7 +325,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
 
 # --- Login ---
 def pagina_login():
-    st.markdown("## 👤 Login de Usuário - V2.0.3 by Leandro Malheiros")
+    st.markdown("## 👤 Login de Usuário - V2.0.4 by Leandro Malheiros")
     usuario = st.text_input("Usuário").strip()
     senha = st.text_input("Senha", type="password").strip()
 
@@ -500,8 +504,32 @@ def pagina_ocorrencias():
 
             # ================= NOVA OCORRÊNCIA =================
             if ocorrencia_selecionada == "Nova Ocorrência":
-                descricao = st.text_area("✏️ Descrição da Ocorrência", key="descricao_nova")
-                ata = st.text_input("📄 ATA (opcional)", key="ata_nova")
+                tipos_ocorrencia = [
+                    "Indisciplina",
+                    "Agressão Física",
+                    "Agressão Verbal",
+                    "Uso de Celular",
+                    "Desrespeito",
+                    "Dano ao Patrimônio",
+                    "Falta Injustificada",
+                    "Outros"
+                ]
+
+                tipo_ocorrencia = st.selectbox(
+                    "📌 Tipo de Ocorrência",
+                    tipos_ocorrencia,
+                    key="tipo_ocorrencia_nova"
+                )
+
+                descricao = st.text_area(
+                    "✏️ Descrição da Ocorrência",
+                    key="descricao_nova"
+                )
+
+                ata = st.text_input(
+                    "📄 ATA (opcional)",
+                    key="ata_nova"
+                )
 
                 arquivo_ata = st.file_uploader(
                     "📤 Importar ATA (Somente JPG)",
@@ -521,8 +549,13 @@ def pagina_ocorrencias():
                         "nome": nome,
                         "telefone": telefone,
                         "data": agora,
+                        "tipo_ocorrencia": tipo_ocorrencia,
                         "descricao": descricao,
-                        "ata": ata
+                        "ata": ata,
+                        "usuario_registro": st.session_state.get(
+                            "usuario",
+                            "Não informado"
+                        )
                     })
 
                     st.success("✅ Ocorrência registrada com sucesso!")
@@ -531,6 +564,36 @@ def pagina_ocorrencias():
             else:
                 index = opcoes_ocorrencias.index(ocorrencia_selecionada) - 1
                 ocorrencia = ocorrencias[index]
+
+                tipos_ocorrencia = [
+                    "Indisciplina",
+                    "Agressão Física",
+                    "Agressão Verbal",
+                    "Uso de Celular",
+                    "Desrespeito",
+                    "Dano ao Patrimônio",
+                    "Falta Injustificada",
+                    "Outros"
+                ]
+
+                tipo_ocorrencia = st.selectbox(
+                    "📌 Tipo de Ocorrência",
+                    tipos_ocorrencia,
+                    index=(
+                        tipos_ocorrencia.index(
+                            ocorrencia.get(
+                                "tipo_ocorrencia",
+                                "Outros"
+                            )
+                        )
+                        if ocorrencia.get(
+                            "tipo_ocorrencia",
+                            "Outros"
+                        ) in tipos_ocorrencia
+                        else len(tipos_ocorrencia) - 1
+                    ),
+                    key=f"tipo_{ocorrencia['_id']}"
+                )
 
                 descricao = st.text_area(
                     "✏️ Descrição da Ocorrência",
@@ -560,6 +623,7 @@ def pagina_ocorrencias():
                         db.ocorrencias.update_one(
                             {"_id": ocorrencia["_id"]},
                             {"$set": {
+                                "tipo_ocorrencia": tipo_ocorrencia,
                                 "descricao": descricao,
                                 "ata": ata
                             }}
@@ -621,63 +685,129 @@ def pagina_exportar():
                     mime="application/pdf"
                 )
 
-    # ===================== PERÍODO =====================
-    st.subheader("📅 Exportar por Período")
-
-    uid = str(uuid.uuid4())
-
-    data_inicio = st.date_input("Data inicial", key=f"ini_{uid}")
-    data_fim = st.date_input("Data final", key=f"fim_{uid}")
-
-    if st.button("🔎 Gerar relatório por período", key=f"periodo_{uid}"):
-
-        if data_fim < data_inicio:
-            st.error("A data final não pode ser menor que a data inicial.")
-            st.stop()
-
-        inicio = data_inicio.strftime("%Y-%m-%d 00:00:00")
-        fim = data_fim.strftime("%Y-%m-%d 23:59:59")
-
-        dados = list(db.ocorrencias.find({
-            "data": {
-                "$gte": inicio,
-                "$lte": fim
-            }
-        }))
-
+# ===================== PERÍODO =====================
+st.subheader("📅 Exportar por Período")
+uid = str(uuid.uuid4())
+with st.form(f"form_periodo_{uid}"):
+    data_inicio = st.date_input(
+        "Data inicial",
+        value=date(agora_local().year, 1, 1),
+        key=f"ini_{uid}"
+    )
+    data_fim = st.date_input(
+        "Data final",
+        value=agora_local().date(),
+        key=f"fim_{uid}"
+    )
+    gerar_periodo = st.form_submit_button(
+        "🔎 Gerar relatório por período"
+    )
+if gerar_periodo:
+    if data_fim < data_inicio:
+        st.error(
+            "A data final não pode ser menor que a data inicial."
+        )
+    else:
+        inicio = data_inicio.strftime(
+            "%Y-%m-%d 00:00:00"
+        )
+        fim = data_fim.strftime(
+            "%Y-%m-%d 23:59:59"
+        )
+        dados = list(
+            db.ocorrencias.find({
+                "data": {
+                    "$gte": inicio,
+                    "$lte": fim
+                }
+            }).sort(
+                "data",
+                1
+            )
+        )
         if not dados:
-            st.warning("Nenhuma ocorrência encontrada no período selecionado.")
+            st.warning(
+                f"Nenhuma ocorrência encontrada entre "
+                f"{data_inicio.strftime('%d/%m/%Y')} e "
+                f"{data_fim.strftime('%d/%m/%Y')}."
+            )
+            st.session_state.pop(
+                "relatorio_periodo_docx",
+                None
+            )
+            st.session_state.pop(
+                "relatorio_periodo_pdf",
+                None
+            )
         else:
-            st.success(f"{len(dados)} ocorrência(s) encontrada(s).")
-
             caminho_docx = exportar_ocorrencias_para_word(
                 dados,
                 "relatorio_periodo.docx"
             )
-
-            with open(caminho_docx, "rb") as f:
-                st.download_button(
-                    "📥 Baixar DOCX",
-                    f.read(),
-                    file_name="relatorio_periodo.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    key=f"download_docx_{uid}"
-                )
-
             caminho_pdf = exportar_ocorrencias_para_pdf(
                 dados,
                 "relatorio_periodo.pdf"
             )
-
-            with open(caminho_pdf, "rb") as f:
-                st.download_button(
-                    "📥 Baixar PDF",
-                    f.read(),
-                    file_name="relatorio_periodo.pdf",
-                    mime="application/pdf",
-                    key=f"download_pdf_{uid}"
-                )
-
+            st.session_state[
+                "relatorio_periodo_docx"
+            ] = caminho_docx
+            st.session_state[
+                "relatorio_periodo_pdf"
+            ] = caminho_pdf
+            st.session_state[
+                "relatorio_periodo_info"
+            ] = (
+                f"{len(dados)} ocorrência(s) encontrada(s) "
+                f"entre "
+                f"{data_inicio.strftime('%d/%m/%Y')} e "
+                f"{data_fim.strftime('%d/%m/%Y')}."
+            )
+# ============================================================
+# DOWNLOAD DOS RELATÓRIOS GERADOS
+# ============================================================
+caminho_docx_periodo = st.session_state.get(
+    "relatorio_periodo_docx"
+)
+caminho_pdf_periodo = st.session_state.get(
+    "relatorio_periodo_pdf"
+)
+if caminho_docx_periodo and Path(
+    caminho_docx_periodo
+).exists():
+    st.success(
+        st.session_state.get(
+            "relatorio_periodo_info",
+            "Relatório gerado com sucesso."
+        )
+    )
+    with open(
+        caminho_docx_periodo,
+        "rb"
+    ) as f:
+        st.download_button(
+            "📥 Baixar Relatório por Período (DOCX)",
+            data=f.read(),
+            file_name="relatorio_periodo.docx",
+            mime=(
+                "application/vnd.openxmlformats-officedocument."
+                "wordprocessingml.document"
+            ),
+            key="download_relatorio_periodo_docx"
+        )
+if caminho_pdf_periodo and Path(
+    caminho_pdf_periodo
+).exists():
+    with open(
+        caminho_pdf_periodo,
+        "rb"
+    ) as f:
+        st.download_button(
+            "📥 Baixar Relatório por Período (PDF)",
+            data=f.read(),
+            file_name="relatorio_periodo.pdf",
+            mime="application/pdf",
+            key="download_relatorio_periodo_pdf"
+        )
     # ===================== AGRUPADO POR ALUNO =====================
     st.subheader("📄 Relatórios Individuais por Aluno")
 
@@ -754,13 +884,6 @@ def pagina_exportar():
                         file_name=f"relatorio_{nome.replace(' ','_')}.pdf",
                         mime="application/pdf"
                     )
-                    with open(caminho, "rb") as f:
-                        st.download_button(
-                            "📥 Baixar PDF",
-                            f.read(),
-                            file_name=f"relatorio_{nome.replace(' ','_')}.pdf",
-                            mime="application/pdf"
-                        )
 
 # --- Lista de Alunos ---
 def pagina_lista():
@@ -815,24 +938,238 @@ def pagina_usuarios():
         else:
             st.info("Nenhum usuário cadastrado ainda.")
 
+
+# --- Relatório Estatístico de Ocorrências ---
+def pagina_relatorio_estatistico():
+    st.markdown("## 📊 Relatório Estatístico de Ocorrências")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        data_inicio = st.date_input(
+            "📅 Data inicial",
+            value=date(agora_local().year, 1, 1),
+            key="estatistica_inicio"
+        )
+
+    with col2:
+        data_fim = st.date_input(
+            "📅 Data final",
+            value=agora_local().date(),
+            key="estatistica_fim"
+        )
+
+    if data_fim < data_inicio:
+        st.error("A data final não pode ser menor que a data inicial.")
+        return
+
+    inicio = data_inicio.strftime("%Y-%m-%d 00:00:00")
+    fim = data_fim.strftime("%Y-%m-%d 23:59:59")
+
+    ocorrencias = list(
+        db.ocorrencias.find({
+            "data": {
+                "$gte": inicio,
+                "$lte": fim
+            }
+        })
+    )
+
+    if not ocorrencias:
+        st.warning("Nenhuma ocorrência encontrada no período selecionado.")
+        return
+
+    aba_tipo, aba_usuario, aba_cruzada = st.tabs([
+        "📌 Por Tipo",
+        "👤 Por Usuário",
+        "📊 Tipo × Usuário"
+    ])
+
+    with aba_tipo:
+        contagem_tipo = {}
+
+        for ocorrencia in ocorrencias:
+            tipo = ocorrencia.get("tipo_ocorrencia", "Não informado")
+            if not tipo or not str(tipo).strip():
+                tipo = "Não informado"
+
+            contagem_tipo[tipo] = contagem_tipo.get(tipo, 0) + 1
+
+        df_tipo = pd.DataFrame(
+            list(contagem_tipo.items()),
+            columns=["Tipo de Ocorrência", "Quantidade"]
+        ).sort_values("Quantidade", ascending=False)
+
+        total = len(ocorrencias)
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("🚨 Total de Ocorrências", total)
+        c2.metric("📌 Tipos Registrados", len(df_tipo))
+        c3.metric("🏆 Mais Frequente", df_tipo.iloc[0]["Tipo de Ocorrência"])
+
+        st.subheader("📋 Quantidade por Tipo")
+        st.dataframe(df_tipo, use_container_width=True, hide_index=True)
+
+        st.subheader("📊 Gráfico por Tipo")
+        st.bar_chart(
+            df_tipo.set_index("Tipo de Ocorrência")["Quantidade"]
+        )
+
+        df_percentual = df_tipo.copy()
+        df_percentual["Percentual"] = (
+            df_percentual["Quantidade"] / total * 100
+        ).round(2)
+
+        st.subheader("📈 Distribuição Percentual")
+        st.dataframe(
+            df_percentual,
+            use_container_width=True,
+            hide_index=True
+        )
+
+    with aba_usuario:
+        contagem_usuario = {}
+
+        for ocorrencia in ocorrencias:
+            usuario = ocorrencia.get(
+                "usuario_registro",
+                "Não informado"
+            )
+
+            if not usuario or not str(usuario).strip():
+                usuario = "Não informado"
+
+            contagem_usuario[usuario] = (
+                contagem_usuario.get(usuario, 0) + 1
+            )
+
+        df_usuario = pd.DataFrame(
+            list(contagem_usuario.items()),
+            columns=["Usuário", "Quantidade de Ocorrências"]
+        ).sort_values(
+            "Quantidade de Ocorrências",
+            ascending=False
+        )
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("🚨 Total", len(ocorrencias))
+        c2.metric("👤 Usuários", len(df_usuario))
+        c3.metric("🏆 Maior Registro", df_usuario.iloc[0]["Usuário"])
+
+        st.subheader("👤 Quantidade de Ocorrências por Usuário")
+        st.dataframe(
+            df_usuario,
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.subheader("📊 Gráfico por Usuário")
+        st.bar_chart(
+            df_usuario.set_index("Usuário")[
+                "Quantidade de Ocorrências"
+            ]
+        )
+
+        st.subheader("🏆 Ranking de Usuários")
+        ranking = df_usuario.copy()
+        ranking.insert(
+            0,
+            "Posição",
+            range(1, len(ranking) + 1)
+        )
+
+        st.dataframe(
+            ranking,
+            use_container_width=True,
+            hide_index=True
+        )
+
+    with aba_cruzada:
+        dados_cruzados = []
+
+        for ocorrencia in ocorrencias:
+            usuario = ocorrencia.get(
+                "usuario_registro",
+                "Não informado"
+            )
+            tipo = ocorrencia.get(
+                "tipo_ocorrencia",
+                "Não informado"
+            )
+
+            if not usuario or not str(usuario).strip():
+                usuario = "Não informado"
+
+            if not tipo or not str(tipo).strip():
+                tipo = "Não informado"
+
+            dados_cruzados.append({
+                "Usuário": usuario,
+                "Tipo": tipo
+            })
+
+        df_cruzado = pd.DataFrame(dados_cruzados)
+
+        tabela = pd.crosstab(
+            df_cruzado["Usuário"],
+            df_cruzado["Tipo"]
+        )
+
+        tabela["TOTAL"] = tabela.sum(axis=1)
+        tabela.loc["TOTAL GERAL"] = tabela.sum(axis=0)
+
+        st.subheader("📊 Ocorrências por Usuário e Tipo")
+        st.dataframe(
+            tabela,
+            use_container_width=True
+        )
+
+        st.subheader("📈 Total de Ocorrências por Usuário")
+
+        grafico_usuario = tabela.drop(
+            index="TOTAL GERAL",
+            errors="ignore"
+        )["TOTAL"]
+
+        st.bar_chart(grafico_usuario)
+
+        csv = tabela.to_csv().encode("utf-8-sig")
+
+        st.download_button(
+            "📥 Baixar Relatório Tipo × Usuário (CSV)",
+            data=csv,
+            file_name="relatorio_tipo_usuario.csv",
+            mime="text/csv",
+            key="download_tipo_usuario_csv"
+        )
+
+
 # --- Menu Lateral ---
 def menu():
     st.sidebar.image("BRASÃO1.png", use_container_width=True)
     st.sidebar.markdown("### 📚 Menu de Navegação")
-    opcoes = ["Cadastro", "Ocorrências", "Exportar", "Lista"]
+    opcoes = [
+        "👨‍🎓 Cadastro de Alunos",
+        "🚨 Ocorrências",
+        "📊 Relatório Estatístico",
+        "📥 Exportar Relatórios",
+        "📋 Lista de Alunos"
+    ]
     if st.session_state.get("nivel") == "admin":
-        opcoes.append("Usuários")
+        opcoes.append("👥 Usuários")
     pagina = st.sidebar.selectbox("Escolha a aba:", opcoes)
 
-    if pagina == "Cadastro":
+    if pagina == "👨‍🎓 Cadastro de Alunos":
         pagina_cadastro()
-    elif pagina == "Ocorrências":
+    elif pagina == "🚨 Ocorrências":
         pagina_ocorrencias()
-    elif pagina == "Exportar":
+    elif pagina == "📊 Relatório Estatístico":
+        pagina_relatorio_estatistico()
+    elif pagina == "📥 Exportar Relatórios":
         pagina_exportar()
-    elif pagina == "Lista":
+    elif pagina == "📋 Lista de Alunos":
         pagina_lista()
-    elif pagina == "Usuários":
+    elif pagina == "👥 Usuários":
         pagina_usuarios()
 
 def sair():
