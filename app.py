@@ -325,7 +325,7 @@ def exportar_ocorrencias_para_pdf(ocorrencias, nome_arquivo):
 
 # --- Login ---
 def pagina_login():
-    st.markdown("## 👤 Login de Usuário - V2.0.3 by Leandro Malheiros")
+    st.markdown("## 👤 Login de Usuário - V2.0.4 by Leandro Malheiros")
     usuario = st.text_input("Usuário").strip()
     senha = st.text_input("Senha", type="password").strip()
 
