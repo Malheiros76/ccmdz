@@ -14,7 +14,7 @@ import pytz
 
 import base64
 
-st.set_page_config(page_title="Sistema Escolar - CCMDZ by Leandro Malheiros V2.0.3 ", layout="centered")
+st.set_page_config(page_title="Sistema Escolar - CCMDZ by Leandro Malheiros V2.0.4 ", layout="centered")
 
 # --- Estilização Visual ---
 st.markdown("""
