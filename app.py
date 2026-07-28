@@ -516,6 +516,7 @@ def pagina_ocorrencias():
                     "Gazeando aulas",
                     "Sair da sala sem autorização",
                     "Piercing/Brinco",
+                    "Cigarro Eletronico",
                     "Uniforme incompleto/incorreto"
                 ]
 
@@ -581,6 +582,7 @@ def pagina_ocorrencias():
                     "Gazeando aulas",
                     "Piercing/Brinco",
                     "Sair da sala sem autorização",
+                    "Cigarro Eletronico",
                     "Uniforme incompleto/incorreto"
                 ]
 
