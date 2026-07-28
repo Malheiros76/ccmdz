@@ -515,6 +515,7 @@ def pagina_ocorrencias():
                     "Outros",
                     "Gazeando aulas",
                     "Sair da sala sem autorização",
+                    "Piercing/Brinco",
                     "Uniforme incompleto/incorreto"
                 ]
 
@@ -578,6 +579,7 @@ def pagina_ocorrencias():
                     "Falta Injustificada",
                     "Outros",
                     "Gazeando aulas",
+                    "Piercing/Brinco",
                     "Sair da sala sem autorização",
                     "Uniforme incompleto/incorreto"
                 ]
